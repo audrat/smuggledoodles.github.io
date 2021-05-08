@@ -25,7 +25,7 @@ window.Processing = require('./src/')(Browser);
 },{"./src/":28}],2:[function(require,module,exports){
 module.exports={
   "name": "processing-js",
-  "version": "1.6.6",
+  "version": "1.6.6.1",
   "author": "Processing.js",
   "repository": {
     "type": "git",
@@ -7614,8 +7614,10 @@ module.exports = function withTouch(p, curElement, attachEventHandler, detachEve
 
     // If there are any native touch events defined in the sketch, connect all of them
     // Otherwise, connect all of the emulated mouse events
-    if (p.touchStart !== undef || p.touchMove !== undef ||
+    window.console.log("Trying to add touch handlers")
+    if (!p.hasAddedTouch && p.touchStart !== undef || p.touchMove !== undef ||
         p.touchEnd !== undef || p.touchCancel !== undef) {
+        window.console.log("Adding touch handlers: native");
       attachEventHandler(curElement, "touchstart", function(t) {
         if (p.touchStart !== undef) {
           t = addTouchEventOffset(t);
@@ -7645,18 +7647,21 @@ module.exports = function withTouch(p, curElement, attachEventHandler, detachEve
         }
       });
 
-    } else {
+    } else if (!p.hasAddedTouch) {
+        p.hasAddedTouch = true;
+        window.console.log("Adding touch handlers: emulated");
       // Emulated touch start/mouse down event
       attachEventHandler(curElement, "touchstart", function(e) {
-        updateMousePosition(curElement, e.touches[0]);
-
-        p.__mousePressed = true;
-        p.mouseDragging = false;
-        p.mouseButton = PConstants.LEFT;
-
-        if (typeof p.mousePressed === "function") {
-          p.mousePressed();
-        }
+          window.console.log("touchdown");
+          updateMousePosition(curElement, e.touches[0]);
+  
+          p.__mousePressed = true;
+          p.mouseDragging = false;
+          p.mouseButton = PConstants.LEFT;
+  
+          if (typeof p.mousePressed === "function") {
+            p.mousePressed();
+          }
       });
 
       // Emulated touch move/mouse move event
@@ -7675,16 +7680,19 @@ module.exports = function withTouch(p, curElement, attachEventHandler, detachEve
 
       // Emulated touch up/mouse up event
       attachEventHandler(curElement, "touchend", function(e) {
-        p.__mousePressed = false;
-
-        if (typeof p.mouseClicked === "function" && !p.mouseDragging) {
-          p.mouseClicked();
-        }
+          p.__mousePressed = false;
 
         if (typeof p.mouseReleased === "function") {
           p.mouseReleased();
         }
+
+        if (typeof p.mouseClicked === "function" && !p.mouseDragging) {
+          p.mouseClicked();
+        }
+        
       });
+      
+
     }
   });
 
@@ -7764,30 +7772,34 @@ module.exports = function withTouch(p, curElement, attachEventHandler, detachEve
    * Mouse pressed or drag
    */
   attachEventHandler(curElement, "mousedown", function(e) {
-    p.__mousePressed = true;
-    p.mouseDragging = false;
-    switch (e.which) {
-    case 1:
-      p.mouseButton = PConstants.LEFT;
-      break;
-    case 2:
-      p.mouseButton = PConstants.CENTER;
-      break;
-    case 3:
-      p.mouseButton = PConstants.RIGHT;
-      break;
-    }
+    if (!p.hasAddedTouch) {
+        p.__mousePressed = true;
+        p.mouseDragging = false;
+        switch (e.which) {
+        case 1:
+          p.mouseButton = PConstants.LEFT;
+          break;
+        case 2:
+          p.mouseButton = PConstants.CENTER;
+          break;
+        case 3:
+          p.mouseButton = PConstants.RIGHT;
+          break;
+        }
 
-    if (typeof p.mousePressed === "function") {
-      p.mousePressed();
-    }
+      window.console.log("mousedown");
+      if (typeof p.mousePressed === "function") {
+        p.mousePressed();
+      }
+    }    
   });
 
   /**
    * Mouse clicked or released
    */
   attachEventHandler(curElement, "mouseup", function(e) {
-    p.__mousePressed = false;
+    if (!p.hasAddedTouch) {
+      p.__mousePressed = false;
 
     if (typeof p.mouseClicked === "function" && !p.mouseDragging) {
       p.mouseClicked();
@@ -7795,6 +7807,7 @@ module.exports = function withTouch(p, curElement, attachEventHandler, detachEve
 
     if (typeof p.mouseReleased === "function") {
       p.mouseReleased();
+    }
     }
   });
 
@@ -9754,7 +9767,6 @@ module.exports = function setupParser(Processing, options) {
     extend.withCommonFunctions(p);
     extend.withMath(p);
     extend.withProxyFunctions(p, removeFirstArgument);
-    extend.withTouch(p, curElement, attachEventHandler, detachEventHandlersByType, document, PConstants);
 
     // custom functions and properties are added here
     if(aFunctions) {
@@ -9815,6 +9827,9 @@ module.exports = function setupParser(Processing, options) {
     p.keyTyped        = noop;
     p.draw            = undef;
     p.setup           = undef;
+
+    p.hasAddedTouch = false;
+    extend.withTouch(p, curElement, attachEventHandler, detachEventHandlersByType, document, PConstants);
 
     // Remapped vars
     p.__mousePressed  = false;

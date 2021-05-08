@@ -117,7 +117,10 @@ class controlKey extends Key{
   void checkAndRegister() {
     if (hover()) {
       if (c.equals('_')) {
-        currentTyped += " ";
+        String part1 = currentTyped.substring(0, cursorPosition);
+        String part2 = currentTyped.substring(cursorPosition);
+        currentTyped = part1 + " " + part2;
+        cursorPosition += 1;
       } else if (c.equals('<')) {
         if (currentStrokeBuffer.length() < 1){
           //currentTyped = currentTyped.substring(0,currentTyped.length()-1);

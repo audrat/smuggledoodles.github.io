@@ -13,7 +13,7 @@
 <script type="text/processing" data-processing-target="mycanvas">
 import java.util.HashMap;
 
-final int DPIofYourDeviceScreen = 201; //you will need to measure or look up the DPI or PPI of your device/browser to make sure you get the right scale!!
+final int DPIofYourDeviceScreen = 110; //you will need to measure or look up the DPI or PPI of your device/browser to make sure you get the right scale!!
 final float sizeOfInputArea = DPIofYourDeviceScreen*1; //aka, 1.0 inches square!
 
 int totalTrialNum = 2; //the total number of phrases to be tested - set this low for testing. Might be ~10 for the real bakeoff!
@@ -57,7 +57,7 @@ String suggestion = "";
 // }
 
 class Key {
-  static int size = 201/4; //(110-25)/3;
+  static int size = 110/4; //(110-25)/3;
   static int confirmGreenLightTime = 80;
   int x, y;
   int offset = 0;
@@ -94,7 +94,7 @@ class Key {
       rect(x+offset,y,size,size);
       noStroke();
       fill(255,255,255, 255);
-      text(c,x+offset+size/2,y+size/2+size/8);
+      text(c,x+offset+size/2-size/8,y+size/2+size/8);
     } else { // autocomplete area
       rect(x,y,sizeOfInputArea-size*2,size);
       noStroke();
@@ -104,6 +104,8 @@ class Key {
       textAlign(CENTER);
       text(suggestion, width/2, inputAreaBottomY+sizeOfInputArea/6);
     }
+    textSize(12);
+    
   }
 
   void inInputArea() {
@@ -410,7 +412,6 @@ void draw()
     //you can very slightly adjust the position of the target/entered phrases and next button
     textAlign(LEFT); //align the text left
     fill(128);
-    textSize(15);
     text("Phrase " + (currTrialNum+1) + " of " + totalTrialNum, 70, 50); //draw the trial count
     fill(128);
     text("Target:   " + currentPhrase, 70, 100); //draw the target string

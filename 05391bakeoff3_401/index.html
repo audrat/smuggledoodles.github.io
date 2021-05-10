@@ -57,7 +57,7 @@ String suggestion = "";
 // }
 
 class Key {
-  static int size = 401/4; //(401-25)/3;
+  static int size = 401/4; //(110-25)/3;
   static int confirmGreenLightTime = 80;
   int x, y;
   int offset = 0;
@@ -89,11 +89,12 @@ class Key {
     }
     strokeWeight(0.5);
     stroke(150);
+    textSize(DPIofYourDeviceScreen/8);
     if (!c.equals('*')) {
       rect(x+offset,y,size,size);
       noStroke();
       fill(255,255,255, 255);
-      text(c,x+offset+size/2-size/8,y+size/2+size/8);
+      text(c,x+offset+size/2,y+size/2+size/8);
     } else { // autocomplete area
       rect(x,y,sizeOfInputArea-size*2,size);
       noStroke();
@@ -101,9 +102,8 @@ class Key {
       fill(255);
       // println(suggestion);
       textAlign(CENTER);
-      text(suggestion, width/2, height/2+sizeOfInputArea/2-sizeOfInputArea/12);
+      text(suggestion, width/2, inputAreaBottomY+sizeOfInputArea/6);
     }
-    
   }
 
   void inInputArea() {
@@ -237,10 +237,10 @@ class Keyboard {
     // mask bars
     fill(255);
     int w = 6;
-    rect(x-Key.size-w,y-w,Key.size+w,sizeOfInputArea+2*w); //left
-    rect(x+sizeOfInputArea,y-w,Key.size+w,sizeOfInputArea+2*w); //right
-    rect(x, y+sizeOfInputArea, sizeOfInputArea+2*w, w); //bottom
-    rect(x, y-w, sizeOfInputArea+2*w, w); //top
+    rect(inputAreaLeftX-Key.size-w,inputAreaBottomY-w,Key.size+w,sizeOfInputArea+2*w); //left
+    rect(inputAreaLeftX+sizeOfInputArea,inputAreaBottomY-w,Key.size+w,sizeOfInputArea+2*w); //right
+    rect(inputAreaLeftX, inputAreaBottomY+sizeOfInputArea, sizeOfInputArea+2*w, w); //bottom
+    rect(inputAreaLeftX, inputAreaBottomY-w, sizeOfInputArea+2*w, w); //top
   }
 
   void checkAndRegister() {
@@ -352,11 +352,11 @@ void setup()
   inputAreaBottomY = height/2-sizeOfInputArea/2;
 
 
-  kb = new Keyboard(width/2-sizeOfInputArea/2, height/2-sizeOfInputArea/2);
+  kb = new Keyboard(width/2-sizeOfInputArea/2, height/2-sizeOfInputArea/2+Key.size);
   sl = new Slider(width/2-sizeOfInputArea/2, height/2+sizeOfInputArea/2 - Slider.h);
-  spaceKey = new Key(width/2-sizeOfInputArea/2, height/2+sizeOfInputArea/2 - Key.size, '_');
-  backKey = new Key(width/2+sizeOfInputArea/2-Key.size, height/2+sizeOfInputArea/2 - Key.size, '<');
-  autocompleteKey = new Key(width/2-Key.size, height/2+sizeOfInputArea/2-Key.size, '*');
+  spaceKey = new Key(width/2-sizeOfInputArea/2, height/2-sizeOfInputArea/2, '_');
+  backKey = new Key(width/2+sizeOfInputArea/2-Key.size, height/2-sizeOfInputArea/2, '<');
+  autocompleteKey = new Key(width/2-Key.size, height/2-sizeOfInputArea/2, '*');
   slkb = new SlidingKeyboard(kb, sl, spaceKey, backKey, autocompleteKey);
 }
 
@@ -410,6 +410,7 @@ void draw()
     //you can very slightly adjust the position of the target/entered phrases and next button
     textAlign(LEFT); //align the text left
     fill(128);
+    textSize(15);
     text("Phrase " + (currTrialNum+1) + " of " + totalTrialNum, 70, 50); //draw the trial count
     fill(128);
     text("Target:   " + currentPhrase, 70, 100); //draw the target string
@@ -417,9 +418,9 @@ void draw()
 
     //draw very basic next button
     fill(255, 0, 0);
-    rect(600, 600, 200, 200); //draw next button
+    rect(600, 610, 200, 200); //draw next button
     fill(255);
-    text("NEXT > ", 650, 650); //draw next label
+    text("NEXT > ", 650, 660); //draw next label
 
     // //my draw code that you should replace.
     // fill(255, 0, 0); //red button
